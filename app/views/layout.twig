@@ -1,0 +1,73 @@
+<html>
+    <head>
+        <title>{{ title }}</title>
+        <script src="{{ path('home') }}js/jquery-1.11.1.min.js"></script>
+        <script src="{{ path('home') }}js/bootstrap.min.js"></script>
+        <script src="{{ path('home') }}js/moment.min.js"></script>
+        <script src="{{ path('home') }}js/moment.sk.js"></script>
+
+        <!-- Google web fonts -->
+        <link href="http://fonts.googleapis.com/css?family=PT+Sans+Narrow:400,700" rel='stylesheet' />
+
+        <!-- The main CSS file -->
+        <link rel="stylesheet" href="{{ path('home') }}css/bootstrap.min.css">
+        <link href="{{ path('home') }}css/style.css" rel="stylesheet" />
+    </head>
+    <body>
+
+    {% for type, messages in app.session.getFlashBag.all() %}
+        {% for message in messages %}
+        <p class="alert-{{ type }} text-center msg">{{ message }}</p>
+        {% endfor %}
+    {% endfor %}
+
+{% block content %}{% endblock %}
+    
+    {# poznamka: skryte vypisovanie sql queries
+    
+    {% if logger.queries %}
+    <table class="sql-log">
+        <thead>
+            <th>SQL - {{ logger.queries|length }} query</th>
+            <th>Params</th>
+            <th nowrap>Time (&micro;s)</th>
+        </thead>
+        <tbody>
+        {% for log in logger.queries %}
+            <tr>
+                <td>{{ log.sql }}</td>
+                <td>{% for p in log.params %}[{{ p|join(', ') }}]{% if not loop.last %}, {% endif %}{% endfor %}</td>
+                <td>{{ (log.executionMS*1000)|round(3, 'floor') }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+    
+    #}
+    
+        <footer><small>© 2014 Odovzdaj.to ako zaverečný projekt z PRO pre <a href="">SPŠE Prešov</a> vytvoril Marek Dlugoš z III.SA</small></footer>
+    
+    <script>
+        moment.lang('sk');
+        $(function () {
+            var timestamps = $('span[data-timestamp]');
+            
+            var updateTime = function () {
+                timestamps.each(function () {
+                    $this = $(this);
+                    var duration = moment.duration( -moment().diff( moment($this.data('timestamp')) ) );
+                    var str = +duration < 0 ? '-': duration.humanize();
+                    if ( $this.html() !== str ) {
+                        $this.html( str );
+                    }
+                });
+            };
+            
+            updateTime();
+            setInterval( updateTime, 1000 );
+        });
+    </script>
+    {% block script %}{% endblock %}
+    </body>
+</html>

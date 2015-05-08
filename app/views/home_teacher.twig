@@ -1,0 +1,102 @@
+{% set title = 'Vitaj - Odovzdaj.to' %}
+{% extends "layout.twig" %}
+
+{% block content %}
+    
+    <div class="navbar navbar-default navbar-static-top" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">Odovzdaj.to</a>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li class="name">Vitaj {{ user.meno }}<!-- ,  {{ user.rocnik|rome }}. {{ user.kod }} --></li>
+                    <li><a href="{{ path('logout') }}">Odhlásiť sa</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+    
+        <button class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">Vytvoriť nový termín</button>
+    
+        <div id="myModal" class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="myModalLabel">Vytvoriť nový termín</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form role="form" action="{{ path('zadanie.new') }}" method="post">
+                            <div class="form-group">
+                                {{ form_widget(form) }}
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h1>Otvorené termíny</h1>
+
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Názov termínu</th>
+                    <th>Predmet</th>
+                    <th>Trieda</th>
+                    <th>Naplnenosť</th>
+                    <th>Trvá do</th>
+                    <th>Ostáva</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for zadanie in zadania %}
+                <tr>
+                    <td>{{ zadanie.nazov }}</td>
+                    <td>{{ zadanie.predmet }}</td>
+                    <td>{{ zadanie.rocnik|rome }}. {{ zadanie.kod }}</td>
+                    <td>{{ zadanie.odovzdanych }}</td>
+                    <td>{{ zadanie.cas_uzatvorenia }}</td>
+                    <td><span class="zadanie-koniec" data-timestamp="{{ zadanie.cas_uzatvorenia }}"></span></td>
+                    <td><a href="{{ path('zadanie.delete', {id: zadanie.id }) }}"><i class="glyphicon glyphicon-remove-circle"></i> Vymazať</a></td>
+                    <td><a href="{{ path('zadanie.zip', {id: zadanie.id }) }}"><i class="glyphicon glyphicon-download"></i> Stiahnúť</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h1>Zatvorené termíny</h1>
+
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Názov termínu</th>
+                    <th>Predmet</th>
+                    <th>Trieda</th>
+                    <th>Naplnenosť</th>
+                    <th>Trval do</th>
+                    <th><!-- --></th>
+                    <th><!-- --></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for zadanie in zadaniaZatvorene %}
+                <tr>
+                    <td>{{ zadanie.nazov }}</td>
+                    <td>{{ zadanie.predmet }}</td>
+                    <td>{{ zadanie.rocnik|rome }}. {{ zadanie.kod }}</td>
+                    <td>{{ zadanie.odovzdanych }}</td>
+                    <td>{{ zadanie.cas_uzatvorenia }}</td>
+                    <td><a href="{{ path('zadanie.delete', {id: zadanie.id }) }}"><i class="glyphicon glyphicon-remove-circle"></i> Vymazať</a></td>
+                    <th><a href="{{ path('zadanie.zip', {id: zadanie.id }) }}"><i class="glyphicon glyphicon-download"></i> Stiahnúť</a></th>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    
+    </div>
+
+{% endblock %}

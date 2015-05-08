@@ -1,0 +1,136 @@
+{% set title = 'Vitaj - Odovzdaj.to' %}
+{% extends "layout.twig" %}
+
+{% block content %}
+    
+    <div class="navbar navbar-default navbar-static-top" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">Odovzdaj.to</a>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li class="name">Vitaj {{ user.meno }}, {{ user.rocnik|rome }}. {{ user.kod }}</li>
+                    <li><a href="{{ path('logout') }}">Odhlásiť sa</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        
+        <h2>Otvorené termíny</h2>
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Názov termínu</th>
+                    <th>Predmet</th>
+                    <th>Trvá do</th>
+                    <th>Ostáva</th>
+                    <th><!-- --></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for zadanie in zadania %}
+                <tr>
+                    <td>{{ zadanie.nazov }}</td>
+                    <td>{{ zadanie.predmet }}</td>
+                    <td>{{ zadanie.cas_uzatvorenia|date('d.m.Y H:i') }}</td>
+                    <td><span class="zadanie-koniec" data-timestamp="{{ zadanie.cas_uzatvorenia }}"></span></td>
+                    <td><button class="btn btn-primary" data-toggle="modal" data-target="#modal{{ zadanie.id }}" id="#m{{ zadanie.id }}">Otvoriť</button></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        {% for zadanie in zadania %}
+        <div id="modal{{ zadanie.id }}" class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="myModalLabel">{{ zadanie.nazov }}</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form class="upload" method="post" action="{{ path('upload') }}" enctype="multipart/form-data">
+                            <div class="drop">
+                                Pretiahnite súbor(y) sem alebo ich nájdite
+
+                                <a>Prehľadávať</a>
+                                <input type="file" name="upl" multiple />
+                            </div>
+
+                            <input type="hidden" value="{{ zadanie.id }}" name="zadanie_id">
+
+                            <ul>
+                                {% for subor in zadanie.subory %}
+                                <li class="static-file">
+                                    <input type="text" value="100" data-width="48" data-height="48" data-fgColor="#0788a5" data-readOnly="1" data-bgColor="#3e4043" />
+                                    <p>{{ subor.nazov }}<i>{{ subor.velkost|readable_filesize }}</i></p><span></span>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </form>
+
+                        <form action="{{ path('odovzdaj') }}" method="post">
+                            <input type="hidden" value="{{ zadanie.id }}" name="zadanie_id">
+                            <label for="poznamka" style="margin-top: 30px; margin-bottom: 0;">Poznámka pre vyučujúceho</label>
+                            <textarea class="form-control" style="margin-top: 5px;" name="poznamka" cols="30" rows="5">{%if zadanie.odovzdanie.poznamka is defined %}{{ zadanie.odovzdanie.poznamka }}{% endif %}</textarea>
+                            <input type="submit" style="margin-top: 20px;" value="Odovzdať" class="btn btn-primary">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        
+        <h2>Uzatvorené termíny</h2>
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Názov termínu</th>
+                    <th>Predmet</th>
+                    <th>Trval do</th>
+                    <th>Súbory</th>
+                    <th>Poznámky</th>
+                    <th>Po termíne</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for zadanie in ukonceneZadania %}
+                <tr>
+                    <td>{{ zadanie.nazov }}</td>
+                    <td>{{ zadanie.predmet }}</td>
+                    <td>{{ zadanie.cas_uzatvorenia }}</td>
+                    <td>{% for subor in zadanie.subory %}{{ subor.nazov }}, {% endfor %}</td>
+                    <td>{% if zadanie.odovzdanie is defined %}{{ zadanie.odovzdanie.poznamka }}{% endif %}</td>
+                    <td><!-- --></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    
+    </div>
+
+{% endblock %}
+
+{% block script %}
+<script src="{{ path('home') }}js/jquery.knob.js"></script>
+{% for zadanie in zadania %}
+<script>$('#m{{ zadanie.id }}').modal();</script>
+{% endfor %}
+<!-- jQuery File Upload Dependencies -->
+<script src="{{ path('home') }}js/jquery.ui.widget.js"></script>
+<script src="{{ path('home') }}js/jquery.iframe-transport.js"></script>
+<script src="{{ path('home') }}js/jquery.fileupload.js"></script>
+
+<!-- Our main JS file -->
+<script src="{{ path('home') }}js/script.js"></script>
+<script>
+    $(function () {
+        $('li.static-file > input').knob();
+        $('li.static-file > span').on('click', function () {
+        });
+    });
+</script>
+{% endblock %}
